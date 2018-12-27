@@ -15,8 +15,8 @@
 package sender
 
 import (
-	cutils "github.com/open-falcon/falcon-plus/common/utils"
-	"github.com/open-falcon/falcon-plus/modules/transfer/g"
+	cutils "github.com/anttygithub/falcon-plus/common/utils"
+	"github.com/anttygithub/falcon-plus/modules/transfer/g"
 	rings "github.com/toolkits/consistent/rings"
 )
 

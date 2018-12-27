@@ -17,12 +17,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/open-falcon/falcon-plus/modules/transfer/g"
-	"github.com/open-falcon/falcon-plus/modules/transfer/http"
-	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
-	"github.com/open-falcon/falcon-plus/modules/transfer/receiver"
-	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
 	"os"
+
+	"github.com/anttygithub/falcon-plus/modules/transfer/g"
+	"github.com/anttygithub/falcon-plus/modules/transfer/http"
+	"github.com/anttygithub/falcon-plus/modules/transfer/proc"
+	"github.com/anttygithub/falcon-plus/modules/transfer/receiver"
+	"github.com/anttygithub/falcon-plus/modules/transfer/sender"
 )
 
 func main() {

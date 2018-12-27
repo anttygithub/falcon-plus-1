@@ -16,13 +16,14 @@ package sender
 
 import (
 	"bytes"
-	cmodel "github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/transfer/g"
-	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
-	nsema "github.com/toolkits/concurrent/semaphore"
-	"github.com/toolkits/container/list"
 	"log"
 	"time"
+
+	cmodel "github.com/anttygithub/falcon-plus/common/model"
+	"github.com/anttygithub/falcon-plus/modules/transfer/g"
+	"github.com/anttygithub/falcon-plus/modules/transfer/proc"
+	nsema "github.com/toolkits/concurrent/semaphore"
+	"github.com/toolkits/container/list"
 )
 
 // send
@@ -37,6 +38,7 @@ func startSendTasks() {
 	judgeConcurrent := cfg.Judge.MaxConns
 	graphConcurrent := cfg.Graph.MaxConns
 	tsdbConcurrent := cfg.Tsdb.MaxConns
+	imsConcurrent := cfg.Ims.MaxConns
 
 	if tsdbConcurrent < 1 {
 		tsdbConcurrent = 1
@@ -65,6 +67,10 @@ func startSendTasks() {
 
 	if cfg.Tsdb.Enabled {
 		go forward2TsdbTask(tsdbConcurrent)
+	}
+
+	if cfg.Ims.Enabled {
+		go forward2ImsTask(imsConcurrent)
 	}
 }
 
@@ -196,6 +202,45 @@ func forward2TsdbTask(concurrent int) {
 
 			if err != nil {
 				proc.SendToTsdbFailCnt.IncrBy(int64(len(itemList)))
+				log.Println(err)
+				return
+			}
+		}(items)
+	}
+}
+
+func forward2ImsTask(concurrent int) {
+	batch := g.Config().Ims.Batch // 一次发送,最多batch条数据
+	retry := g.Config().Ims.MaxRetry
+	sema := nsema.NewSemaphore(concurrent)
+
+	for {
+		items := ImsQueue.PopBackBy(batch)
+		if len(items) == 0 {
+			time.Sleep(DefaultSendTaskSleepInterval)
+			continue
+		}
+		//  同步Call + 有限并发 进行发送
+		sema.Acquire()
+		go func(itemList []interface{}) {
+			defer sema.Release()
+
+			items := make([]*cmodel.ImsItem, 0, batch)
+			for _, i := range itemList {
+				items = append(items, i.(*cmodel.ImsItem))
+			}
+			var err error
+			for i := 0; i < retry; i++ {
+				err = httpsend(items)
+				if err == nil {
+					proc.SendToImsCnt.IncrBy(int64(len(itemList)))
+					break
+				}
+				time.Sleep(time.Millisecond * 10)
+			}
+
+			if err != nil {
+				proc.SendToImsFailCnt.IncrBy(int64(len(itemList)))
 				log.Println(err)
 				return
 			}

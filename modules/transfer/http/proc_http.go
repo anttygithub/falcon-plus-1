@@ -15,12 +15,13 @@
 package http
 
 import (
-	cutils "github.com/open-falcon/falcon-plus/common/utils"
-	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
-	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
 	"net/http"
 	"strconv"
 	"strings"
+
+	cutils "github.com/anttygithub/falcon-plus/common/utils"
+	"github.com/anttygithub/falcon-plus/modules/transfer/proc"
+	"github.com/anttygithub/falcon-plus/modules/transfer/sender"
 )
 
 func configProcHttpRoutes() {

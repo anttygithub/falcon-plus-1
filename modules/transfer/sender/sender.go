@@ -16,13 +16,15 @@ package sender
 
 import (
 	"fmt"
-	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
-	cmodel "github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/transfer/g"
-	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
+	"log"
+
+	backend "github.com/anttygithub/falcon-plus/common/backend_pool"
+	amodel "github.com/anttygithub/falcon-plus/common/model"
+	cmodel "github.com/anttygithub/falcon-plus/common/model"
+	"github.com/anttygithub/falcon-plus/modules/transfer/g"
+	"github.com/anttygithub/falcon-plus/modules/transfer/proc"
 	rings "github.com/toolkits/consistent/rings"
 	nlist "github.com/toolkits/container/list"
-	"log"
 )
 
 const (
@@ -45,6 +47,7 @@ var (
 // node -> queue_of_data
 var (
 	TsdbQueue   *nlist.SafeListLimited
+	ImsQueue    *nlist.SafeListLimited
 	JudgeQueues = make(map[string]*nlist.SafeListLimited)
 	GraphQueues = make(map[string]*nlist.SafeListLimited)
 )
@@ -211,4 +214,34 @@ func convert2TsdbItem(d *cmodel.MetaData) *cmodel.TsdbItem {
 
 func alignTs(ts int64, period int64) int64 {
 	return ts - ts%period
+}
+
+// 将原始数据插入到ims缓存队列
+func Push2ImsSendQueue(items []*cmodel.MetaData) {
+	for _, item := range items {
+		ImsItem := convert2ImsItem(item)
+		isSuccess := ImsQueue.PushFront(ImsItem)
+
+		if !isSuccess {
+			proc.SendToImsDropCnt.Incr()
+		}
+	}
+}
+
+// 转化为ims格式
+func convert2ImsItem(d *cmodel.MetaData) *amodel.ImsItem {
+	t := amodel.ImsItem{Tags: make(map[string]string)}
+
+	for k, v := range d.Tags {
+		t.Tags[k] = v
+	}
+	t.Tags["endpoint"] = d.Endpoint
+	t.Metric = d.Metric
+	t.Timestamp = d.Timestamp
+
+	return &t
+}
+
+func httpsend(items interface{}) error {
+	return nil
 }

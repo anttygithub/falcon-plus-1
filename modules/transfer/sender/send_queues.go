@@ -15,7 +15,7 @@
 package sender
 
 import (
-	"github.com/open-falcon/falcon-plus/modules/transfer/g"
+	"github.com/anttygithub/falcon-plus/modules/transfer/g"
 	nlist "github.com/toolkits/container/list"
 )
 
@@ -35,5 +35,9 @@ func initSendQueues() {
 
 	if cfg.Tsdb.Enabled {
 		TsdbQueue = nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
+	}
+
+	if cfg.Ims.Enabled {
+		ImsQueue = nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
 	}
 }

@@ -15,8 +15,9 @@
 package proc
 
 import (
-	nproc "github.com/toolkits/proc"
 	"log"
+
+	nproc "github.com/toolkits/proc"
 )
 
 // trace
@@ -40,14 +41,17 @@ var (
 	SendToJudgeCnt = nproc.NewSCounterQps("SendToJudgeCnt")
 	SendToTsdbCnt  = nproc.NewSCounterQps("SendToTsdbCnt")
 	SendToGraphCnt = nproc.NewSCounterQps("SendToGraphCnt")
+	SendToImsCnt   = nproc.NewSCounterQps("SendToImsCnt")
 
 	SendToJudgeDropCnt = nproc.NewSCounterQps("SendToJudgeDropCnt")
 	SendToTsdbDropCnt  = nproc.NewSCounterQps("SendToTsdbDropCnt")
 	SendToGraphDropCnt = nproc.NewSCounterQps("SendToGraphDropCnt")
+	SendToImsDropCnt   = nproc.NewSCounterQps("SendToImsDropCnt")
 
 	SendToJudgeFailCnt = nproc.NewSCounterQps("SendToJudgeFailCnt")
 	SendToTsdbFailCnt  = nproc.NewSCounterQps("SendToTsdbFailCnt")
 	SendToGraphFailCnt = nproc.NewSCounterQps("SendToGraphFailCnt")
+	SendToImsFailCnt   = nproc.NewSCounterQps("SendToImsFailCnt")
 
 	// 发送缓存大小
 	JudgeQueuesCnt = nproc.NewSCounterBase("JudgeSendCacheCnt")
@@ -84,16 +88,19 @@ func GetAll() []interface{} {
 	ret = append(ret, SendToJudgeCnt.Get())
 	ret = append(ret, SendToTsdbCnt.Get())
 	ret = append(ret, SendToGraphCnt.Get())
+	ret = append(ret, SendToImsCnt.Get())
 
 	// drop cnt
 	ret = append(ret, SendToJudgeDropCnt.Get())
 	ret = append(ret, SendToTsdbDropCnt.Get())
 	ret = append(ret, SendToGraphDropCnt.Get())
+	ret = append(ret, SendToImsDropCnt.Get())
 
 	// send fail cnt
 	ret = append(ret, SendToJudgeFailCnt.Get())
 	ret = append(ret, SendToTsdbFailCnt.Get())
 	ret = append(ret, SendToGraphFailCnt.Get())
+	ret = append(ret, SendToImsFailCnt.Get())
 
 	// cache cnt
 	ret = append(ret, JudgeQueuesCnt.Get())

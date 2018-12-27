@@ -17,11 +17,12 @@ package http
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"io/ioutil"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
+
+	"github.com/anttygithub/falcon-plus/modules/transfer/g"
 )
 
 type Dto struct {

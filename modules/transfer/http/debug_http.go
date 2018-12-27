@@ -16,9 +16,10 @@ package http
 
 import (
 	"fmt"
-	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
 	"net/http"
 	"strings"
+
+	"github.com/anttygithub/falcon-plus/modules/transfer/sender"
 )
 
 func configDebugHttpRoutes() {
