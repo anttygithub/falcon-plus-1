@@ -19,7 +19,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anttygithub/falcon-plus/modules/transfer/proc"
+	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	"github.com/toolkits/container/list"
 )
 

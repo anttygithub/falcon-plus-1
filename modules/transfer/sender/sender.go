@@ -18,11 +18,11 @@ import (
 	"fmt"
 	"log"
 
-	backend "github.com/anttygithub/falcon-plus/common/backend_pool"
-	amodel "github.com/anttygithub/falcon-plus/common/model"
-	cmodel "github.com/anttygithub/falcon-plus/common/model"
-	"github.com/anttygithub/falcon-plus/modules/transfer/g"
-	"github.com/anttygithub/falcon-plus/modules/transfer/proc"
+	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
+	amodel "github.com/open-falcon/falcon-plus/common/model"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/transfer/g"
+	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	rings "github.com/toolkits/consistent/rings"
 	nlist "github.com/toolkits/container/list"
 )

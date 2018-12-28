@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/anttygithub/falcon-plus/modules/transfer/sender"
+	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
 )
 
 func configDebugHttpRoutes() {

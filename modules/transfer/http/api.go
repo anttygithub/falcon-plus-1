@@ -18,8 +18,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	cmodel "github.com/anttygithub/falcon-plus/common/model"
-	prpc "github.com/anttygithub/falcon-plus/modules/transfer/receiver/rpc"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	prpc "github.com/open-falcon/falcon-plus/modules/transfer/receiver/rpc"
 )
 
 func api_push_datapoints(rw http.ResponseWriter, req *http.Request) {
