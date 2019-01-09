@@ -15,6 +15,8 @@
 package sender
 
 import (
+	"log"
+
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	nlist "github.com/toolkits/container/list"
 )
@@ -38,6 +40,8 @@ func initSendQueues() {
 	}
 
 	if cfg.Ims.Enabled {
+		log.Println("init.ImsQueue...")
 		ImsQueue = nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
+		log.Println("init.ImsQueue...ok")
 	}
 }

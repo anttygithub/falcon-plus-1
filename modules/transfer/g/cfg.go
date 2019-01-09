@@ -76,14 +76,16 @@ type TsdbConfig struct {
 
 // TODO
 type ImsConfig struct {
-	Enabled     bool   `json:"enabled"`
-	Batch       int    `json:"batch"`
-	ConnTimeout int    `json:"connTimeout"`
-	CallTimeout int    `json:"callTimeout"`
-	MaxConns    int    `json:"maxConns"`
-	MaxIdle     int    `json:"maxIdle"`
-	MaxRetry    int    `json:"retry"`
-	Address     string `json:"address"`
+	Enabled     bool              `json:"enabled"`
+	Batch       int               `json:"batch"`
+	ConnTimeout int               `json:"connTimeout"`
+	CallTimeout int               `json:"callTimeout"`
+	MaxConns    int               `json:"maxConns"`
+	MaxIdle     int               `json:"maxIdle"`
+	MaxRetry    int               `json:"retry"`
+	Period      int64             `json:"period"`
+	Address     string            `json:"address"`
+	FalconToIms map[string]string `json:"falconToIms"`
 }
 
 type GlobalConfig struct {

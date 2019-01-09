@@ -158,3 +158,64 @@ make clean all pack
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
 <a href="https://github.com/open-falcon/falcon-plus/contributors"><img src="https://opencollective.com/falcon-plus/contributors.svg?width=890&button=false" /></a>
+
+
+########### start mysql.
+docker run -itd \
+    --name falcon-mysql \
+    -e MYSQL_ROOT_PASSWORD=test123456 \
+    -p 3306:3306 \
+    mysql:5.7
+
+## init db.
+for x in `ls ./scripts/mysql/db_schema/*.sql`; do
+    echo init mysql table $x ...;
+    docker exec -i falcon-mysql mysql -uroot -ptest123456 < $x;
+done
+
+## start redis.
+docker run --name falcon-redis -p6379:6379 -d redis:4-alpine3.8
+
+## start falcon .
+docker run -itd --name falcon-plus \
+     --link=falcon-mysql:db.falcon \
+     --link=falcon-redis:redis.falcon \
+     -p 8433:8433 \
+     -p 8080:8080 \
+     -p 6030:6030 \
+     -e MYSQL_PORT=root:test123456@tcp\(db.falcon:3306\) \
+     -e REDIS_PORT=redis.falcon:6379  \
+     tern:v0.0.2.1
+
+## start falcon backend modules, such as graph,api,etc.
+    docker exec falcon-plus sh ctrl.sh start \
+            graph hbs judge transfer nodata aggregator agent gateway api alarm
+
+    ## or you can just start/stop/restart specific module as: 
+    docker exec falcon-plus sh ctrl.sh start/stop/restart xxx
+    docker exec falcon-plus sh ctrl.sh start transfer
+
+
+    ## check status of backend modules
+    docker exec falcon-plus ./open-falcon check
+
+    ## or you can check logs at /home/work/open-falcon/logs/ in your host
+    ls -l /home/work/open-falcon/logs/
+
+docker run -itd --name falcon-dashboard \
+        -p 8081:8081 \
+        --link=falcon-mysql:db.falcon \
+        --link=falcon-plus:api.falcon \
+        -e API_ADDR=http://api.falcon:8080/api/v1 \
+        -e PORTAL_DB_HOST=db.falcon \
+        -e PORTAL_DB_PORT=3306 \
+        -e PORTAL_DB_USER=root \
+        -e PORTAL_DB_PASS=root\
+        -e PORTAL_DB_NAME=falcon_portal \
+        -e ALARM_DB_HOST=db.falcon \
+        -e ALARM_DB_PORT=3306 \
+        -e ALARM_DB_USER=root \
+        -e ALARM_DB_PASS=root\
+        -e ALARM_DB_NAME=alarms \
+        -w /open-falcon/dashboard openfalcon/falcon-dashboard:v0.2.1  \
+       './control startfg'

@@ -52,6 +52,10 @@ func startSendTasks() {
 		graphConcurrent = 1
 	}
 
+	if imsConcurrent < 1 {
+		imsConcurrent = 1
+	}
+
 	// init send go-routines
 	for node := range cfg.Judge.Cluster {
 		queue := JudgeQueues[node]
@@ -70,7 +74,9 @@ func startSendTasks() {
 	}
 
 	if cfg.Ims.Enabled {
+		log.Println("start.forward2ImsTask...")
 		go forward2ImsTask(imsConcurrent)
+		log.Println("start.forward2ImsTask...ok")
 	}
 }
 
@@ -210,6 +216,7 @@ func forward2TsdbTask(concurrent int) {
 }
 
 func forward2ImsTask(concurrent int) {
+	log.Println("doing.forward2ImsTask...")
 	batch := g.Config().Ims.Batch // 一次发送,最多batch条数据
 	retry := g.Config().Ims.MaxRetry
 	sema := nsema.NewSemaphore(concurrent)
@@ -220,6 +227,7 @@ func forward2ImsTask(concurrent int) {
 			time.Sleep(DefaultSendTaskSleepInterval)
 			continue
 		}
+		log.Println("doing.send...", items)
 		//  同步Call + 有限并发 进行发送
 		sema.Acquire()
 		go func(itemList []interface{}) {
@@ -231,7 +239,8 @@ func forward2ImsTask(concurrent int) {
 			}
 			var err error
 			for i := 0; i < retry; i++ {
-				err = httpsend(items)
+				log.Println("doing.retry...", i)
+				err = imssend(items)
 				if err == nil {
 					proc.SendToImsCnt.IncrBy(int64(len(itemList)))
 					break

@@ -15,11 +15,16 @@
 package sender
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"strings"
 
+	"github.com/Sirupsen/logrus"
 	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
-	amodel "github.com/open-falcon/falcon-plus/common/model"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
@@ -216,10 +221,56 @@ func alignTs(ts int64, period int64) int64 {
 	return ts - ts%period
 }
 
-// 将原始数据插入到ims缓存队列
+// ImsSendCache .
+var ImsSendCache = make(map[string]CacheData)
+
+// CacheData .
+type CacheData struct {
+	Time          int64
+	LastTimestamp int64
+}
+
+//Push2ImsSendQueue 将原始数据插入到ims缓存队列
 func Push2ImsSendQueue(items []*cmodel.MetaData) {
-	for _, item := range items {
-		ImsItem := convert2ImsItem(item)
+	cfg := g.Config()
+	itemsGroup := make(map[string][]*cmodel.MetaData)
+	for i := 0; i < len(items); i++ {
+		//处理采集周期>=ims接收周期
+		if items[i].Step >= cfg.Ims.Period {
+			//每次都需要上报
+			key := items[i].Endpoint + fmt.Sprint(items[i].Timestamp)
+			itemsGroup[key] = append(itemsGroup[key], items[i]) //加入上报列表
+			continue                                            //处理下一条数据，无需记录缓存
+		}
+		//处理采集周期<ims接收周期数据
+		if _, ok := ImsSendCache[items[i].Endpoint+items[i].Metric]; !ok { //未发送过的ip+指标处理
+			ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
+				Time:          items[i].Step,
+				LastTimestamp: items[i].Timestamp,
+			}
+		} else { //已发送过的ip+指标
+			if cfg.Ims.Period > ImsSendCache[items[i].Endpoint+items[i].Metric].Time+items[i].Step { //若没超过ims接收周期
+				ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
+					Time:          ImsSendCache[items[i].Endpoint+items[i].Metric].Time + items[i].Step,
+					LastTimestamp: items[i].Timestamp,
+				}
+				continue //跳过，本次无需上报
+			} else { //若超过ims接收周期
+				ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
+					Time:          ImsSendCache[items[i].Endpoint+items[i].Metric].Time + items[i].Step - cfg.Ims.Period,
+					LastTimestamp: items[i].Timestamp,
+				}
+			}
+		}
+		key := items[i].Endpoint + fmt.Sprint(items[i].Timestamp)
+		itemsGroup[key] = append(itemsGroup[key], items[i]) //加入上报列表
+	}
+	for _, is := range itemsGroup {
+		log.Printf("[DEBUG]:Push2ImsSendQueue,input item:%v", is)
+		ImsItem := convert2ImsItem(is)
+		if ImsItem == nil {
+			continue
+		}
 		isSuccess := ImsQueue.PushFront(ImsItem)
 
 		if !isSuccess {
@@ -229,19 +280,83 @@ func Push2ImsSendQueue(items []*cmodel.MetaData) {
 }
 
 // 转化为ims格式
-func convert2ImsItem(d *cmodel.MetaData) *amodel.ImsItem {
-	t := amodel.ImsItem{Tags: make(map[string]string)}
-
-	for k, v := range d.Tags {
-		t.Tags[k] = v
+func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
+	log.Printf("[DEBUG]:convert2ImsItem,input:%v", d)
+	t := cmodel.ImsItem{}
+	t.Name = d[0].Endpoint
+	t.Timestamp = d[0].Timestamp
+	// t.Type = d.Tags["ims_type"]
+	t.Type = "host"
+	dl := make(map[string]cmodel.Kv)
+	cfg := g.Config()
+	ftiMap := cfg.Ims.FalconToIms
+	log.Printf("ftiMap:%v", ftiMap)
+	for _, m := range d {
+		key := m.Metric
+		if key == "df.bytes.free.percent" { // TODO has a better way to handle this
+			if fmt.Sprint(m.Tags) != "" {
+				key = key + "/" + fmt.Sprint(m.Tags)
+			}
+		}
+		log.Println("key:", key)
+		if _, ok := ftiMap[key]; ok {
+			i := ftiMap[key]
+			ia := strings.Split(i, "/")
+			if len(ia) < 2 {
+				log.Printf("falconToIms config was wrong,please check:%s", i)
+			}
+			kv := make(cmodel.Kv)
+			kv[ia[1]] = m.Value
+			dl[ia[0]] = kv
+			log.Printf("kv:%v", kv)
+		}
 	}
-	t.Tags["endpoint"] = d.Endpoint
-	t.Metric = d.Metric
-	t.Timestamp = d.Timestamp
 
+	if len(dl) == 0 {
+		return nil
+	}
+	t.DataList = dl
+	log.Printf("[DEBUG]:convert2ImsItem,output:%v", t)
 	return &t
 }
 
-func httpsend(items interface{}) error {
+func imssend(items interface{}) error {
+	b, err := json.Marshal(items)
+	if err != nil {
+		return err
+	}
+	body := bytes.NewBuffer([]byte(b))
+
+	//POST to IMS
+	log.Printf("[DEBUG]:imssend,input:%s", string(b))
+	cfg := g.Config()
+	log.Printf("[DEBUG]:imssend,cfg.Ims.Address:%s", cfg.Ims.Address)
+	req, _ := http.NewRequest("POST", cfg.Ims.Address, body)
+	req.Header.Set("Content-Type", "application/json")
+	// req.Host = beego.AppConfig.String("_imsipport")
+	client := http.Client{}
+	logrus.Info("Send MetricData to IMS: ", string(b))
+	// logrus.Info("Send data is ", b[:200])
+	// logrus.Info("Target url is ", cfg.Ims.Address)
+
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	result, err := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err != nil {
+		return err
+	}
+	log.Printf("IMS return result=%v \n", string(result))
+	ob := cmodel.RespondFromIms{}
+	err = json.Unmarshal(result, &ob)
+	if err != nil {
+		return fmt.Errorf("IMS返回结果解析失败：%v", string(result))
+	}
+	if ob.ResultCode != 0 {
+		return fmt.Errorf("IMS return error: %v", ob.ResultMsg)
+	}
 	return nil
 }
