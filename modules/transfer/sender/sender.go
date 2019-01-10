@@ -298,17 +298,21 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 				key = key + "/" + fmt.Sprint(m.Tags)
 			}
 		}
-		log.Println("key:", key)
+		log.Printf("Metric:%v,key:%s", m, key)
 		if _, ok := ftiMap[key]; ok {
 			i := ftiMap[key]
 			ia := strings.Split(i, "/")
 			if len(ia) < 2 {
 				log.Printf("falconToIms config was wrong,please check:%s", i)
 			}
-			kv := make(cmodel.Kv)
-			kv[ia[1]] = m.Value
-			dl[ia[0]] = kv
-			log.Printf("kv:%v", kv)
+			if _, ok := dl[ia[0]]; ok {
+				dl[ia[0]][ia[1]] = m.Value
+			} else {
+				kv := make(cmodel.Kv)
+				kv[ia[1]] = m.Value
+				dl[ia[0]] = kv
+			}
+			log.Printf("dl:%v", dl)
 		}
 	}
 

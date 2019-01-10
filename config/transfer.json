@@ -47,5 +47,37 @@
         "maxIdle": 32,
         "retry": 3,
         "address": "127.0.0.1:8088"
+    },
+    "ims": {
+        "enabled": true,
+        "batch": 200,
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "retry": 3,
+        "period": 60,
+        "address": "%%TRANSFER_IMS_URL%%", 
+        "falconToIms":{
+            "cup.busy":"cup/cup",
+            "load.1min":"cup/cpu_min1",
+            "load.5min":"cup/cpu_min5",
+            "mem.memused.percent":"mem/mem_percent",
+            "mem.swaptotal":"mem/mem_swap_total",
+            "mem.swapused":"mem/mem_swap_used",
+            "mem.memtotal":"mem/mem_total",
+            "mem.memused":"mem/mem_used",
+            "disk.io.await":"disk/disk_await_time_max",
+            "disk.io.read_bytes":"disk/disk_io_read",
+            "disk.io.write_bytes":"disk/disk_io_write",
+            "disk.io.svctm":"disk/disk_svctm_time_max",
+            "disk.io.read_requests":"disk/disk_total_read",
+            "disk.io.write_requests":"disk/disk_total_write",
+            "df.bytes.free.percent/tag1":"disk/disk_used_rate_data",
+            "df.bytes.free.percent/tag2":"disk/disk_used_rate_data_1",
+            "df.bytes.free.percent/tag3":"disk/disk_used_rate_local",
+            "df.bytes.free.percent/tag4":"disk/disk_used_rate_root",
+            "disk.io.util":"disk/disk_util_max"
+        }
     }
 }

@@ -16,6 +16,7 @@ confs=(
     '%%MYSQL%%=root:@tcp(127.0.0.1:3306)'
     '%%PLUS_API_DEFAULT_TOKEN%%=default-token-used-in-server-side'
     '%%PLUS_API_HTTP%%=0.0.0.0:8080'
+    '%%TRANSFER_IMS_URL%%=http://10.255.4.120:10812/ims_data_access/send_machine_metric_by_json.do'
  )
 
 configurer() {
