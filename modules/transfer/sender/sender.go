@@ -232,36 +232,38 @@ type CacheData struct {
 
 //Push2ImsSendQueue 将原始数据插入到ims缓存队列
 func Push2ImsSendQueue(items []*cmodel.MetaData) {
-	cfg := g.Config()
+	// cfg := g.Config()
 	itemsGroup := make(map[string][]*cmodel.MetaData)
 	for i := 0; i < len(items); i++ {
-		//处理采集周期>=ims接收周期
-		if items[i].Step >= cfg.Ims.Period {
-			//每次都需要上报
-			key := items[i].Endpoint + fmt.Sprint(items[i].Timestamp)
-			itemsGroup[key] = append(itemsGroup[key], items[i]) //加入上报列表
-			continue                                            //处理下一条数据，无需记录缓存
-		}
-		//处理采集周期<ims接收周期数据
-		if _, ok := ImsSendCache[items[i].Endpoint+items[i].Metric]; !ok { //未发送过的ip+指标处理
-			ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
-				Time:          items[i].Step,
-				LastTimestamp: items[i].Timestamp,
+		/*
+			//处理采集周期>=ims接收周期
+			if items[i].Step >= cfg.Ims.Period {
+				//每次都需要上报
+				key := items[i].Endpoint + fmt.Sprint(items[i].Timestamp)
+				itemsGroup[key] = append(itemsGroup[key], items[i]) //加入上报列表
+				continue                                            //处理下一条数据，无需记录缓存
 			}
-		} else { //已发送过的ip+指标
-			if cfg.Ims.Period > ImsSendCache[items[i].Endpoint+items[i].Metric].Time+items[i].Step { //若没超过ims接收周期
+			//处理采集周期<ims接收周期数据
+			if _, ok := ImsSendCache[items[i].Endpoint+items[i].Metric]; !ok { //未发送过的ip+指标处理
 				ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
-					Time:          ImsSendCache[items[i].Endpoint+items[i].Metric].Time + items[i].Step,
+					Time:          items[i].Step,
 					LastTimestamp: items[i].Timestamp,
 				}
-				continue //跳过，本次无需上报
-			} else { //若超过ims接收周期
-				ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
-					Time:          ImsSendCache[items[i].Endpoint+items[i].Metric].Time + items[i].Step - cfg.Ims.Period,
-					LastTimestamp: items[i].Timestamp,
+			} else { //已发送过的ip+指标
+				if cfg.Ims.Period > ImsSendCache[items[i].Endpoint+items[i].Metric].Time+items[i].Step { //若没超过ims接收周期
+					ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
+						Time:          ImsSendCache[items[i].Endpoint+items[i].Metric].Time + items[i].Step,
+						LastTimestamp: items[i].Timestamp,
+					}
+					continue //跳过，本次无需上报
+				} else { //若超过ims接收周期
+					ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
+						Time:          ImsSendCache[items[i].Endpoint+items[i].Metric].Time + items[i].Step - cfg.Ims.Period,
+						LastTimestamp: items[i].Timestamp,
+					}
 				}
 			}
-		}
+		*/
 		key := items[i].Endpoint + fmt.Sprint(items[i].Timestamp)
 		itemsGroup[key] = append(itemsGroup[key], items[i]) //加入上报列表
 	}
@@ -282,9 +284,12 @@ func Push2ImsSendQueue(items []*cmodel.MetaData) {
 // 转化为ims格式
 func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 	log.Printf("[DEBUG]:convert2ImsItem,input:%v", d)
+	if len(d) == 0 {
+		return nil
+	}
 	t := cmodel.ImsItem{}
 	t.Name = d[0].Endpoint
-	t.Timestamp = d[0].Timestamp
+	t.Timestamp = d[0].Timestamp * 1000
 	// t.Type = d.Tags["ims_type"]
 	t.Type = "host"
 	dl := make(map[string]cmodel.Kv)
