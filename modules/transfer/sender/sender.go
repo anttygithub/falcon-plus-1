@@ -298,17 +298,17 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 	log.Printf("ftiMap:%v", ftiMap)
 	for _, m := range d {
 		key := m.Metric
-		if key == "df.bytes.free.percent" { // TODO has a better way to handle this
-			if fmt.Sprint(m.Tags) != "" {
-				key = key + "/" + fmt.Sprint(m.Tags)
-			}
-		}
 		log.Printf("Metric:%v,key:%s", m, key)
 		if _, ok := ftiMap[key]; ok {
 			i := ftiMap[key]
 			ia := strings.Split(i, "/")
-			if len(ia) < 2 {
-				log.Printf("falconToIms config was wrong,please check:%s", i)
+			switch len(ia) {
+			case 1:
+				ia = append(ia, ia[0])
+			case 2:
+				ia[1] = m.Tags[ia[1]]
+			default:
+				continue
 			}
 			if _, ok := dl[ia[0]]; ok {
 				dl[ia[0]][ia[1]] = m.Value
