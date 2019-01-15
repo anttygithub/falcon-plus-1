@@ -19,6 +19,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/Sirupsen/logrus"
+
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
@@ -216,7 +218,7 @@ func forward2TsdbTask(concurrent int) {
 }
 
 func forward2ImsTask(concurrent int) {
-	log.Println("doing.forward2ImsTask...")
+	logrus.Info("doing.forward2ImsTask...")
 	batch := g.Config().Ims.Batch // 一次发送,最多batch条数据
 	retry := g.Config().Ims.MaxRetry
 	sema := nsema.NewSemaphore(concurrent)
@@ -239,7 +241,7 @@ func forward2ImsTask(concurrent int) {
 			}
 			var err error
 			for i := 0; i < retry; i++ {
-				log.Println("doing.retry...", i)
+				logrus.Infof("doing.send...%d time", i+1)
 				err = imssend(items)
 				if err == nil {
 					proc.SendToImsCnt.IncrBy(int64(len(itemList)))

@@ -232,7 +232,13 @@ type CacheData struct {
 
 //Push2ImsSendQueue 将原始数据插入到ims缓存队列
 func Push2ImsSendQueue(items []*cmodel.MetaData) {
-	// cfg := g.Config()
+	cfg := g.Config()
+	if cfg.Debug {
+		logrus.SetLevel(logrus.DebugLevel)
+	} else {
+		logrus.SetLevel(logrus.InfoLevel)
+	}
+	logrus.Debugf("Push2ImsSendQueue,input len:%d", len(items))
 	itemsGroup := make(map[string][]*cmodel.MetaData)
 	for i := 0; i < len(items); i++ {
 		/*
@@ -267,8 +273,9 @@ func Push2ImsSendQueue(items []*cmodel.MetaData) {
 		key := items[i].Endpoint + fmt.Sprint(items[i].Timestamp)
 		itemsGroup[key] = append(itemsGroup[key], items[i]) //加入上报列表
 	}
-	for _, is := range itemsGroup {
-		log.Printf("[DEBUG]:Push2ImsSendQueue,input item:%v", is)
+	for k, is := range itemsGroup {
+		logrus.Debugf("Push2ImsSendQueue,input key:%s", k)
+		logrus.Debugf("Push2ImsSendQueue,input len:%d,group:%v", len(is), is)
 		ImsItem := convert2ImsItem(is)
 		if ImsItem == nil {
 			continue
@@ -283,7 +290,7 @@ func Push2ImsSendQueue(items []*cmodel.MetaData) {
 
 // 转化为ims格式
 func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
-	log.Printf("[DEBUG]:convert2ImsItem,input:%v", d)
+	logrus.Debugf("convert2ImsItem,input:%v", d)
 	if len(d) == 0 {
 		return nil
 	}
@@ -295,13 +302,12 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 	dl := make(map[string]cmodel.Kv)
 	cfg := g.Config()
 	ftiMap := cfg.Ims.FalconToIms
-	log.Printf("ftiMap:%v", ftiMap)
 	for _, m := range d {
 		key := m.Metric
-		log.Printf("Metric:%v,key:%s", m, key)
+		logrus.Debugf("Metric:%v", m)
 		if _, ok := ftiMap[key]; ok {
 			i := ftiMap[key]
-			ia := strings.Split(i, "/")
+			ia := strings.Split(i, "??")
 			switch len(ia) {
 			case 1:
 				ia = append(ia, ia[0])
@@ -317,7 +323,7 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 				kv[ia[1]] = m.Value
 				dl[ia[0]] = kv
 			}
-			log.Printf("dl:%v", dl)
+			logrus.Debugf("dl:%v", dl)
 		}
 	}
 
@@ -325,7 +331,7 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 		return nil
 	}
 	t.DataList = dl
-	log.Printf("[DEBUG]:convert2ImsItem,output:%v", t)
+	logrus.Debugf("convert2ImsItem,output:%v", t)
 	return &t
 }
 
@@ -337,14 +343,13 @@ func imssend(items interface{}) error {
 	body := bytes.NewBuffer([]byte(b))
 
 	//POST to IMS
-	log.Printf("[DEBUG]:imssend,input:%s", string(b))
+	logrus.Debugf("imssend,input:%s", string(b))
 	cfg := g.Config()
-	log.Printf("[DEBUG]:imssend,cfg.Ims.Address:%s", cfg.Ims.Address)
+	logrus.Infof("imssend,cfg.Ims.Address:%s", cfg.Ims.Address)
 	req, _ := http.NewRequest("POST", cfg.Ims.Address, body)
 	req.Header.Set("Content-Type", "application/json")
 	// req.Host = beego.AppConfig.String("_imsipport")
 	client := http.Client{}
-	logrus.Info("Send MetricData to IMS: ", string(b))
 	// logrus.Info("Send data is ", b[:200])
 	// logrus.Info("Target url is ", cfg.Ims.Address)
 
