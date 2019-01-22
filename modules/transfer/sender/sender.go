@@ -343,7 +343,7 @@ func imssend(items interface{}) error {
 	body := bytes.NewBuffer([]byte(b))
 
 	//POST to IMS
-	logrus.Debugf("imssend,input:%s", string(b))
+	logrus.Infof("imssend,input:%s", string(b))
 	cfg := g.Config()
 	logrus.Infof("imssend,cfg.Ims.Address:%s", cfg.Ims.Address)
 	req, _ := http.NewRequest("POST", cfg.Ims.Address, body)

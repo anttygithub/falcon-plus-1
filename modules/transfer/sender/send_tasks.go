@@ -229,7 +229,7 @@ func forward2ImsTask(concurrent int) {
 			time.Sleep(DefaultSendTaskSleepInterval)
 			continue
 		}
-		log.Println("doing.send...", items)
+		logrus.Infof("doing.send...count:%d", len(items))
 		//  同步Call + 有限并发 进行发送
 		sema.Acquire()
 		go func(itemList []interface{}) {
@@ -241,7 +241,7 @@ func forward2ImsTask(concurrent int) {
 			}
 			var err error
 			for i := 0; i < retry; i++ {
-				logrus.Infof("doing.send...%d time", i+1)
+				logrus.Infof("doing.send...the %d time", i+1)
 				err = imssend(items)
 				if err == nil {
 					proc.SendToImsCnt.IncrBy(int64(len(itemList)))
