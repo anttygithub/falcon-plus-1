@@ -290,7 +290,6 @@ func Push2ImsSendQueue(items []*cmodel.MetaData) {
 
 // 转化为ims格式
 func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
-	logrus.Debugf("convert2ImsItem,input:%v", d)
 	if len(d) == 0 {
 		return nil
 	}
@@ -310,7 +309,7 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 			ia := strings.Split(i, "??")
 			switch len(ia) {
 			case 1:
-				ia = append(ia, ia[0])
+				ia = append(ia, "-")
 			case 2:
 				ia[1] = m.Tags[ia[1]]
 			default:
@@ -323,7 +322,6 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 				kv[ia[1]] = m.Value
 				dl[ia[0]] = kv
 			}
-			logrus.Debugf("dl:%v", dl)
 		}
 	}
 
@@ -331,7 +329,6 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 		return nil
 	}
 	t.DataList = dl
-	logrus.Debugf("convert2ImsItem,output:%v", t)
 	return &t
 }
 
@@ -345,7 +342,7 @@ func imssend(items interface{}) error {
 	//POST to IMS
 	logrus.Infof("imssend,input:%s", string(b))
 	cfg := g.Config()
-	logrus.Infof("imssend,cfg.Ims.Address:%s", cfg.Ims.Address)
+	logrus.Debugf("imssend,cfg.Ims.Address:%s", cfg.Ims.Address)
 	req, _ := http.NewRequest("POST", cfg.Ims.Address, body)
 	req.Header.Set("Content-Type", "application/json")
 	// req.Host = beego.AppConfig.String("_imsipport")
