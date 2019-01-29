@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/Sirupsen/logrus"
@@ -306,21 +307,37 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 		logrus.Debugf("Metric:%v", m)
 		if _, ok := ftiMap[key]; ok {
 			i := ftiMap[key]
-			ia := strings.Split(i, "??")
-			switch len(ia) {
-			case 1:
-				ia = append(ia, "-")
-			case 2:
-				ia[1] = m.Tags[ia[1]]
-			default:
-				continue
+			metricName := i.Name
+			objectName := "-"
+			v := m.Value
+			if i.Tag != "" {
+				objectName = i.Tag
 			}
-			if _, ok := dl[ia[0]]; ok {
-				dl[ia[0]][ia[1]] = m.Value
+			if i.Expression != "" {
+				if strings.Contains(i.Expression, "value*") {
+					c := strings.Split(i.Expression, "value*")
+					num, err := strconv.Atoi(c[1])
+					if err != nil {
+						logrus.Errorf("falconToIms config error:%s", i.Expression)
+						return nil
+					}
+					v = v * float64(num)
+				} else if strings.Contains(i.Expression, "value/") {
+					c := strings.Split(i.Expression, "value/")
+					num, err := strconv.Atoi(c[1])
+					if err != nil {
+						logrus.Errorf("falconToIms config error:%s", i.Expression)
+						return nil
+					}
+					v = v / float64(num)
+				}
+			}
+			if _, ok := dl[metricName]; ok {
+				dl[metricName][objectName] = v
 			} else {
 				kv := make(cmodel.Kv)
-				kv[ia[1]] = m.Value
-				dl[ia[0]] = kv
+				kv[objectName] = v
+				dl[metricName] = kv
 			}
 		}
 	}
@@ -340,7 +357,7 @@ func imssend(items interface{}) error {
 	body := bytes.NewBuffer([]byte(b))
 
 	//POST to IMS
-	logrus.Infof("imssend,input:%s", string(b))
+	logrus.Debugf("imssend,input:%s", string(b))
 	cfg := g.Config()
 	logrus.Debugf("imssend,cfg.Ims.Address:%s", cfg.Ims.Address)
 	req, _ := http.NewRequest("POST", cfg.Ims.Address, body)
@@ -360,7 +377,7 @@ func imssend(items interface{}) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("IMS return result=%v \n", string(result))
+	logrus.Debugf("IMS return result=%v \n", string(result))
 	ob := cmodel.RespondFromIms{}
 	err = json.Unmarshal(result, &ob)
 	if err != nil {

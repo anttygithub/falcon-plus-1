@@ -76,16 +76,23 @@ type TsdbConfig struct {
 
 // TODO
 type ImsConfig struct {
-	Enabled     bool              `json:"enabled"`
-	Batch       int               `json:"batch"`
-	ConnTimeout int               `json:"connTimeout"`
-	CallTimeout int               `json:"callTimeout"`
-	MaxConns    int               `json:"maxConns"`
-	MaxIdle     int               `json:"maxIdle"`
-	MaxRetry    int               `json:"retry"`
-	Period      int64             `json:"period"`      //Ims接收数据周期（秒）
-	Address     string            `json:"address"`     //Ims指标上报接口url
-	FalconToIms map[string]string `json:"falconToIms"` //指标映射规则，eg："load.1min/tag":"cup/cpu_min1",load.1min-falcon标准指标名；tag-falcon标签（可选）；cup-ims指标名；cpu_min1-ims子对象名
+	Enabled     bool                     `json:"enabled"`
+	Batch       int                      `json:"batch"`
+	ConnTimeout int                      `json:"connTimeout"`
+	CallTimeout int                      `json:"callTimeout"`
+	MaxConns    int                      `json:"maxConns"`
+	MaxIdle     int                      `json:"maxIdle"`
+	MaxRetry    int                      `json:"retry"`
+	Period      int64                    `json:"period"`      //Ims接收数据周期（秒）
+	Address     string                   `json:"address"`     //Ims指标上报接口url
+	FalconToIms map[string]ImsMetricAttr `json:"falconToIms"` //指标映射规则，eg："load.1min/tag":"cup/cpu_min1",load.1min-falcon标准指标名；tag-falcon标签（可选）；cup-ims指标名；cpu_min1-ims子对象名
+}
+
+// ImsMetricAttr .
+type ImsMetricAttr struct {
+	Name       string `json:"name"`
+	Expression string `json:"expression"`
+	Tag        string `json:"tag"`
 }
 
 type GlobalConfig struct {
