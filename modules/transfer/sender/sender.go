@@ -233,12 +233,6 @@ type CacheData struct {
 
 //Push2ImsSendQueue 将原始数据插入到ims缓存队列
 func Push2ImsSendQueue(items []*cmodel.MetaData) {
-	cfg := g.Config()
-	if cfg.Debug {
-		logrus.SetLevel(logrus.DebugLevel)
-	} else {
-		logrus.SetLevel(logrus.InfoLevel)
-	}
 	logrus.Debugf("Push2ImsSendQueue,input len:%d", len(items))
 	itemsGroup := make(map[string][]*cmodel.MetaData)
 	for i := 0; i < len(items); i++ {
@@ -311,7 +305,7 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 			objectName := "-"
 			v := m.Value
 			if i.Tag != "" {
-				objectName = i.Tag
+				objectName = m.Tags[i.Tag]
 			}
 			if i.Expression != "" {
 				if strings.Contains(i.Expression, "value*") {

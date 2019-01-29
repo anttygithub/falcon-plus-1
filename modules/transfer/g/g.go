@@ -17,6 +17,8 @@ package g
 import (
 	"log"
 	"runtime"
+
+	"github.com/Sirupsen/logrus"
 )
 
 // changelog:
@@ -42,4 +44,19 @@ const (
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
+
+// InitLog .
+func InitLog(level string) (err error) {
+	switch level {
+	case "info":
+		logrus.SetLevel(logrus.InfoLevel)
+	case "debug":
+		logrus.SetLevel(logrus.DebugLevel)
+	case "warn":
+		logrus.SetLevel(logrus.WarnLevel)
+	default:
+		logrus.Fatal("log conf only allow [info, debug, warn], please check your confguire")
+	}
+	return
 }

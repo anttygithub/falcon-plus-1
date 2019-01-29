@@ -59,8 +59,8 @@
         "period": 60,
         "address": "%%TRANSFER_IMS_URL%%", 
         "falconToIms":{
-            "cup.busy": {
-                "name":"cup"
+            "cpu.busy": {
+                "name":"cpu"
             },
             "load.1min": {
                 "name":"cpu_min1",
@@ -91,10 +91,8 @@
                 "expression":"value*100",
                 "tag":"mount"
             },
-            "disk.io.util":{
-                "name":"disk_util_max",
-                "expression":"value*100",
-                "tag":"device"
+            "disk.io.util.max":{
+                "name":"disk_util_max"
             }, 
             "net.if.in.dropped": {
                 "name":"net_in_discard",

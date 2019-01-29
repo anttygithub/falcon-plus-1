@@ -42,6 +42,8 @@ func BuildMappers() {
 				NetstatMetrics,
 				ProcMetrics,
 				UdpMetrics,
+				DiskIOUtilMaxMetrics,
+				DiskFailureMetrics,
 			},
 			Interval: interval,
 		},

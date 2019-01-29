@@ -43,6 +43,11 @@ func main() {
 
 	// global config
 	g.ParseConfig(*cfg)
+	if g.Config().Debug {
+		g.InitLog("debug")
+	} else {
+		g.InitLog("info")
+	}
 	// proc
 	proc.Start()
 
