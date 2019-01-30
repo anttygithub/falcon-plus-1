@@ -37,14 +37,14 @@ func DiskFailureMetrics() (L []*model.MetricValue) {
 		return
 	}
 
-	rrmap := make(map[string]uint64)
+	writerequest := make(map[string]uint64)
 	for _, ds := range dsList {
 		if !ShouldHandleDevice(ds.Device) {
 			continue
 		}
-		rrmap[ds.Device] = ds.ReadRequests
+		writerequest[ds.Device] = ds.WriteRequests
 	}
-	logrus.Debugf("DiskFailureMetrics,disk.io.read_request:%v", rrmap)
+	logrus.Debugf("DiskFailureMetrics,disk.io.write_request:%v", writerequest)
 	psLock.RLock()
 	defer psLock.RUnlock()
 	for device := range diskStatsMap {
@@ -53,13 +53,13 @@ func DiskFailureMetrics() (L []*model.MetricValue) {
 		}
 		use := IODelta(device, IOMsecTotal)
 		duration := IODelta(device, TS)
-		if _, ok := rrmap[device]; !ok {
-			logrus.Errorln("DiskFailureMetrics get read_requests fail")
+		if _, ok := writerequest[device]; !ok {
+			logrus.Errorln("DiskFailureMetrics get write_requests fail")
 			return
 		}
-		f := float64(use) * 100.0 / float64(duration)
-		logrus.Debugf("DiskFailureMetrics device:%s;disk.io.util:%f;CpuIowait:%f;", device, f, CpuIowait())
-		if f >= 100.0 && CpuIowait() >= 0.2 && rrmap[device] == 0 {
+		util := float64(use) * 100.0 / float64(duration)
+		logrus.Debugf("DiskFailureMetrics device:%s;disk.io.util:%f;CpuIowait:%f;", device, util, CpuIowait())
+		if util >= 100.0 && CpuIowait() >= 0.2 && writerequest[device] == 0 {
 			logrus.Debug("DiskFailureMetrics:1")
 			L = append(L, GaugeValue("disk.failure", 1, "device="+device))
 		} else {
