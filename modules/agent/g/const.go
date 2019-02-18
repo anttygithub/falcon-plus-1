@@ -12,8 +12,9 @@ import (
 // 5.1.1: 修复往多个transfer发送数据的时候crash的问题
 // 5.1.2: ignore mount point when blocks=0
 // 5.1.2_wb: 上报endpoint默认为ip
+// 5.1.3_wb: 增加两个字表disk_failure 和 disk_util_max
 const (
-	VERSION          = "5.1.2_wb"
+	VERSION          = "5.1.3_wb"
 	COLLECT_INTERVAL = time.Second
 	URL_CHECK_HEALTH = "url.check.health"
 	NET_PORT_LISTEN  = "net.port.listen"
