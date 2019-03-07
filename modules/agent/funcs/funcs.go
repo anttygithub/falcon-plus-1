@@ -42,6 +42,11 @@ func BuildMappers() {
 				NetstatMetrics,
 				ProcMetrics,
 				UdpMetrics,
+			},
+			Interval: interval,
+		},
+		{
+			Fs: []func() []*model.MetricValue{
 				DiskIOUtilMaxMetrics,
 				DiskFailureMetrics,
 			},

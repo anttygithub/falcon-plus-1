@@ -16,6 +16,7 @@ package funcs
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/open-falcon/falcon-plus/common/model"
@@ -30,12 +31,21 @@ func DiskIOUtilMaxMetrics() (L []*model.MetricValue) {
 
 // DiskFailureMetrics .
 func DiskFailureMetrics() (L []*model.MetricValue) {
-	logrus.Debug("DiskFailureMetrics")
+	normal := false
+	defer func() {
+		if !normal {
+			logrus.Debugf("stack:%s", stack())
+		}
+		if syserr := recover(); syserr != nil {
+			logrus.Errorf("DiskFailureMetrics defer err:%s", syserr)
+		}
+	}()
 	dsList, err := nux.ListDiskStats()
 	if err != nil {
 		logrus.Errorf("DiskFailureMetrics:%s", err)
 		return
 	}
+	logrus.Debugf("dsList:%v", dsList)
 
 	writerequest := make(map[string]uint64)
 	for _, ds := range dsList {
@@ -45,8 +55,8 @@ func DiskFailureMetrics() (L []*model.MetricValue) {
 		writerequest[ds.Device] = ds.WriteRequests
 	}
 	logrus.Debugf("DiskFailureMetrics,disk.io.write_request:%v", writerequest)
-	psLock.RLock()
-	defer psLock.RUnlock()
+	dsLock.RLock()
+	defer dsLock.RUnlock()
 	for device := range diskStatsMap {
 		if !ShouldHandleDevice(device) {
 			continue
@@ -67,13 +77,14 @@ func DiskFailureMetrics() (L []*model.MetricValue) {
 			L = append(L, GaugeValue("disk.failure", 0, "device="+device))
 		}
 	}
+	normal = true
 	return
 }
 
 // DiskUtilMax .
 func DiskUtilMax() float64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
+	dsLock.RLock()
+	defer dsLock.RUnlock()
 	var tmp float64
 	tmp = 0
 	for device := range diskStatsMap {
@@ -92,4 +103,9 @@ func DiskUtilMax() float64 {
 		}
 	}
 	return tmp
+}
+
+func stack() string {
+	var buf [2 << 10]byte
+	return string(buf[:runtime.Stack(buf[:], true)])
 }
