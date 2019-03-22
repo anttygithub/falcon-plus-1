@@ -52,7 +52,9 @@ func DiskFailureMetrics() (L []*model.MetricValue) {
 		if !ShouldHandleDevice(ds.Device) {
 			continue
 		}
-		writerequest[ds.Device] = ds.WriteRequests
+		// writerequest[ds.Device] = ds.WriteRequests
+		writerequest[ds.Device] = IODelta(ds.Device, IOWriteRequests)
+
 	}
 	logrus.Debugf("DiskFailureMetrics,disk.io.write_request:%v", writerequest)
 	dsLock.RLock()
@@ -69,7 +71,7 @@ func DiskFailureMetrics() (L []*model.MetricValue) {
 		}
 		util := float64(use) * 100.0 / float64(duration)
 		logrus.Debugf("DiskFailureMetrics device:%s;disk.io.util:%f;CpuIowait:%f;", device, util, CpuIowait())
-		if util >= 100.0 && CpuIowait() > 0 && writerequest[device] == 0 {
+		if util >= 100.0 && CpuIowait() > 0 && writerequest[device] < 50 {
 			logrus.Debug("DiskFailureMetrics:1")
 			L = append(L, GaugeValue("disk.failure", 1, "device="+device))
 		} else {
