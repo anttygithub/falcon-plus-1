@@ -7,3 +7,4 @@ docs/_site
 .idea
 open-falcon
 falcon-plus
+.vscode/launch.json

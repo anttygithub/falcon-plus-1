@@ -14,7 +14,7 @@ confs=(
     '%%TRANSFER_RPC%%=0.0.0.0:8433'
     '%%PLUS_API_DEFAULT_TOKEN%%=default-token-used-in-server-side'
     '%%PLUS_API_HTTP%%=0.0.0.0:8080'
-    '%%TRANSFER_IMS_URL%%=http:\/\/0.0.0.0:10812\/ims_data_access\/send_machine_metric_by_json.do'
+    '%%TRANSFER_IMS_URL%%=http:\/\/10.255.4.120:10812\/ims_data_access\/send_machine_metric_by_json.do'
  )
 
 configurer() {
@@ -22,8 +22,6 @@ configurer() {
     do
         search="${i%%=*}"
         replace="${i##*=}"
-        echo "${search}"
-        echo "${replace}"
 
         uname=`uname`
         if [ "$uname" == "Darwin" ] ; then
