@@ -17,11 +17,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/open-falcon/falcon-plus/modules/agent/cron"
 	"github.com/open-falcon/falcon-plus/modules/agent/funcs"
 	"github.com/open-falcon/falcon-plus/modules/agent/g"
 	"github.com/open-falcon/falcon-plus/modules/agent/http"
-	"os"
 )
 
 func main() {
@@ -57,6 +58,7 @@ func main() {
 	funcs.BuildMappers()
 
 	go cron.InitDataHistory()
+	go cron.InitDataHistory2()
 
 	cron.ReportAgentStatus()
 	cron.SyncMinePlugins()

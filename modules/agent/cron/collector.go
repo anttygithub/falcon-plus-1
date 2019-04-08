@@ -29,6 +29,13 @@ func InitDataHistory() {
 		time.Sleep(g.COLLECT_INTERVAL)
 	}
 }
+func InitDataHistory2() {
+	TransferInterval := time.Second * time.Duration(int64(g.Config().Transfer.Interval))
+	for {
+		funcs.UpdateDiskStats2()
+		time.Sleep(TransferInterval)
+	}
+}
 
 func Collect() {
 

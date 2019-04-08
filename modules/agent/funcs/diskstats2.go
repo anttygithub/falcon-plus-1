@@ -17,6 +17,7 @@ package funcs
 import (
 	"fmt"
 	"runtime"
+	"sync"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/open-falcon/falcon-plus/common/model"
@@ -48,12 +49,14 @@ func DiskFailureMetrics() (L []*model.MetricValue) {
 	logrus.Debugf("dsList:%v", dsList)
 
 	writerequest := make(map[string]uint64)
+	dsLock2.RLock()
+	defer dsLock2.RUnlock()
 	for _, ds := range dsList {
 		if !ShouldHandleDevice(ds.Device) {
 			continue
 		}
 		// writerequest[ds.Device] = ds.WriteRequests
-		writerequest[ds.Device] = IODelta(ds.Device, IOWriteRequests)
+		writerequest[ds.Device] = IODelta2(ds.Device, IOWriteRequests)
 
 	}
 	logrus.Debugf("DiskFailureMetrics,disk.io.write_request:%v", writerequest)
@@ -110,4 +113,36 @@ func DiskUtilMax() float64 {
 func stack() string {
 	var buf [2 << 10]byte
 	return string(buf[:runtime.Stack(buf[:], true)])
+}
+
+var (
+	diskStatsMap2 = make(map[string][2]*nux.DiskStats)
+	dsLock2       = new(sync.RWMutex)
+)
+
+func UpdateDiskStats2() error {
+	dsList, err := nux.ListDiskStats()
+	if err != nil {
+		return err
+	}
+
+	dsLock2.Lock()
+	defer dsLock2.Unlock()
+	for i := 0; i < len(dsList); i++ {
+		device := dsList[i].Device
+		diskStatsMap2[device] = [2]*nux.DiskStats{dsList[i], diskStatsMap2[device][0]}
+	}
+	return nil
+}
+
+func IODelta2(device string, f func([2]*nux.DiskStats) uint64) uint64 {
+	val, ok := diskStatsMap2[device]
+	if !ok {
+		return 0
+	}
+
+	if val[1] == nil {
+		return 0
+	}
+	return f(val)
 }
