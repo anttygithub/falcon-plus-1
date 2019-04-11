@@ -60,65 +60,70 @@
         "address": "http://0.0.0.0:10812/ims_data_access/send_machine_metric_by_json.do",
         "falconToIms": {
             "cpu.busy": {
-                "name":"cpu"
+                "name": "cpu"
             },
             "load.1min": {
-                "name":"cpu_min1",
-                "expression":"value*100"
+                "name": "cpu_min1"
             },
             "load.5min": {
-                "name":"cpu_min5",
-                "expression":"value*100"
+                "name": "cpu_min5"
             },
             "mem.memused": {
-                "name":"mem_app_total",
-                "expression":"value/1048576"
+                "name": "mem_app_total",
+                "expression": "value/1048576"
             },
-            "mem.swaptotal":{
-                "name":"mem_swap_total",
-                "expression":"value/1024"
+            "mem.swaptotal": {
+                "name": "mem_swap_total",
+                "expression": "value/1024"
             },
             "mem.swapused": {
-                "name":"mem_swap_used",
-                "expression":"value/1024"
+                "name": "mem_swap_used",
+                "expression": "value/1024"
             },
             "mem.memtotal": {
-                "name":"mem_total",
-                "expression":"value/1024"
+                "name": "mem_total",
+                "expression": "value/1024"
             },
-            "df.bytes.used.percent":{
-                "name":"disk_used_rate",
-                "expression":"value*100",
-                "tag":"mount"
+            "df.bytes.used.percent": {
+                "name": "disk_used_rate",
+                "tag": "mount"
             },
-            "disk.io.util.max":{
-                "name":"disk_util_max"
-            }, 
+            "disk.io.util.max": {
+                "name": "disk_util_max"
+            },
             "net.if.in.dropped": {
-                "name":"net_in_discard",
-                "tag":"iface"
-            }, 
-            "net.if.in.errors":{
-                "name":"net_in_err",
-                "tag":"iface"
-            }, 
-            "net.if.in.bytes":{
-                "name":"net_in_size",
-                "expression":"value/1024",
-                "tag":"iface"
-            }, 
-            "net.if.out.dropped":{
-                "name":"net_out_discard",
-                "tag":"iface"
-            }, 
-            "net.if.out.errors":{
-                "name":"net_out_err",
-                "tag":"iface"
-            }, 
+                "name": "net_in_discard",
+                "tag": "iface"
+            },
+            "net.if.in.errors": {
+                "name": "net_in_err",
+                "tag": "iface"
+            },
+            "net.if.in.bytes": {
+                "name": "net_in_size",
+                "expression": "value/1024",
+                "tag": "iface"
+            },
+            "net.if.in.packets": {
+                "name": "net_in_num",
+                "tag": "iface"
+            },
+            "net.if.out.dropped": {
+                "name": "net_out_discard",
+                "tag": "iface"
+            },
+            "net.if.out.errors": {
+                "name": "net_out_err",
+                "tag": "iface"
+            },
             "net.if.out.bytes": {
-                "name":"net_out_size",
-                "expression":"value/1024",
-                "tag":"iface"
+                "name": "net_out_size",
+                "expression": "value/1024",
+                "tag": "iface"
+            },
+            "net.if.out.packets": {
+                "name": "net_out_num",
+                "tag": "iface"
             }
         }
     }
