@@ -121,9 +121,45 @@
                 "expression": "value/1024",
                 "tag": "iface"
             },
-            "net.if.out.packets": {
-                "name": "net_out_num",
-                "tag": "iface"
+            "switch.CpuUtilization": {
+                "name": "cpu"
+            },
+            "switch.sessions.fw": {
+                "name": "session"
+            },
+            "switch.if.InDiscards": {
+                "name": "in_droppkt",
+                "tag": "ifName"
+            },
+            "switch.if.InErrors": {
+                "name": "in_errpkt",
+                "tag": "ifName"
+            },
+            "switch.if.InPkts": {
+                "name": "in_packet",
+                "tag": "ifName"
+            },
+            "switch.if.In": {
+                "name": "in_traffic",
+                "expression": "value/1024",
+                "tag": "ifName"
+            },
+            "switch.if.OutDiscards": {
+                "name": "out_droppkt",
+                "tag": "ifName"
+            },
+            "switch.if.OutErrors": {
+                "name": "out_errpkt",
+                "tag": "ifName"
+            },
+            "switch.if.OutPkts": {
+                "name": "out_packet",
+                "tag": "ifName"
+            },
+            "switch.if.Out": {
+                "name": "out_traffic",
+                "expression": "value/1024",
+                "tag": "ifName"
             }
         }
     }

@@ -291,8 +291,7 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 	t := cmodel.ImsItem{}
 	t.Name = d[0].Endpoint
 	t.Timestamp = d[0].Timestamp * 1000
-	// t.Type = d.Tags["ims_type"]
-	t.Type = "host"
+	t.Type = getEndpointType(d[0].Endpoint)
 	dl := make(map[string]cmodel.Kv)
 	cfg := g.Config()
 	ftiMap := cfg.Ims.FalconToIms
@@ -305,7 +304,9 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 			objectName := "-"
 			v := m.Value
 			if i.Tag != "" {
-				objectName = m.Tags[i.Tag]
+				if _, ok := m.Tags[i.Tag]; ok {
+					objectName = m.Tags[i.Tag]
+				}
 			}
 			if i.Expression != "" {
 				if strings.Contains(i.Expression, "value*") {
@@ -381,4 +382,11 @@ func imssend(items interface{}) error {
 		return fmt.Errorf("IMS return error: %v", ob.ResultMsg)
 	}
 	return nil
+}
+
+func getEndpointType(ep string) string {
+	if strings.Contains(ep, "-") {
+		return "network"
+	}
+	return "host"
 }
