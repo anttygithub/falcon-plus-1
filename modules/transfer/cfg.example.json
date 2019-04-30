@@ -121,6 +121,10 @@
                 "expression": "value/1024",
                 "tag": "iface"
             },
+            "net.if.out.packets": {
+                "name": "net_out_num",
+                "tag": "iface"
+            },
             "switch.CpuUtilization": {
                 "name": "cpu"
             },

@@ -32,9 +32,10 @@ import (
 // 0.0.15: support tsdb
 // 0.0.16: support config of min step
 // 0.0.17: remove migrating, which is implemented in graph
+// 0.0.18_wb: support ims
 
 const (
-	VERSION      = "0.0.17"
+	VERSION      = "0.0.18_wb"
 	GAUGE        = "GAUGE"
 	COUNTER      = "COUNTER"
 	DERIVE       = "DERIVE"
