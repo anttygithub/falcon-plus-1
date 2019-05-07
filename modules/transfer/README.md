@@ -130,9 +130,9 @@ u want sending items via java jsonrpc client? turn to one java example: [jsonrpc
         - period"`      //Ims接收数据周期（秒）
         - address"`     //Ims指标上报接口url
 	    - falconToIms"` //指标映射规则，eg："
-            {"net.if.in.bytes": {
-                "name": "net_in_size",
-                "expression": "value/1024",
-                "tag": "iface"
+            {"net.if.in.bytes": {           //falcon指标名
+                "name": "net_in_size",      //ims指标名
+                "expression": "value/1024", //单位转换
+                "tag": "iface"              //falcon标签（iface）对应值转换为ims子对象名，缺省时，上报子对象名转换为“-”
             }"
-            net.if.in.bytes falcon指标名；tag-falcon标签对应值转换为ims子对象名，缺省值为“-”；name-ims指标名；expression-单位转换
+            
