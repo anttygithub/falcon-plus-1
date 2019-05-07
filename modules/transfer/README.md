@@ -117,3 +117,22 @@ u want sending items via java jsonrpc client? turn to one java example: [jsonrpc
         - maxIdle: 连接池相关配置，最大空闲连接数，建议保持默认
         - retry: 连接后端的重试次数和发送数据的重试次数
         - address: tsdb地址或者tsdb集群vip地址, 通过tcp连接tsdb. 
+
+    ims
+        - enabled: true/false, 表示是否开启向open ims发送数据
+        - batch: 数据转发的批量大小，可以加快发送速度
+        - connTimeout: 单位是毫秒，与后端建立连接的超时时间，可以根据网络质量微调，建议保持默认
+        - callTimeout: 单位是毫秒，发送数据给后端的超时时间，可以根据网络质量微调，建议保持默认
+        - maxConns: 连接池相关配置，最大连接数，建议保持默认
+        - maxIdle: 连接池相关配置，最大空闲连接数，建议保持默认
+        - retry: 连接后端的重试次数和发送数据的重试次数
+        - address: tsdb地址或者tsdb集群vip地址, 通过tcp连接tsdb. 
+        - period"`      //Ims接收数据周期（秒）
+        - address"`     //Ims指标上报接口url
+	    - falconToIms"` //指标映射规则，eg："
+            {"net.if.in.bytes": {
+                "name": "net_in_size",
+                "expression": "value/1024",
+                "tag": "iface"
+            }"
+            net.if.in.bytes falcon指标名；tag-falcon标签对应值转换为ims子对象名，缺省值为“-”；name-ims指标名；expression-单位转换
