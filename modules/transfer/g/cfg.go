@@ -74,7 +74,6 @@ type TsdbConfig struct {
 	Address     string `json:"address"`
 }
 
-// TODO
 type ImsConfig struct {
 	Enabled     bool                     `json:"enabled"`
 	Batch       int                      `json:"batch"`
@@ -85,7 +84,7 @@ type ImsConfig struct {
 	MaxRetry    int                      `json:"retry"`
 	Period      int64                    `json:"period"`      //Ims接收数据周期（秒）
 	Address     string                   `json:"address"`     //Ims指标上报接口url
-	FalconToIms map[string]ImsMetricAttr `json:"falconToIms"` //指标映射规则，eg："load.1min/tag":"cup/cpu_min1",load.1min-falcon标准指标名；tag-falcon标签（可选）；cup-ims指标名；cpu_min1-ims子对象名
+	FalconToIms map[string]ImsMetricAttr `json:"falconToIms"` //指标映射规则
 }
 
 // ImsMetricAttr .
