@@ -101,7 +101,7 @@
             },
             "net.if.in.bytes": {
                 "name": "net_in_size",
-                "expression": "value/1024",
+                "expression": "value/128",
                 "tag": "iface"
             },
             "net.if.in.packets": {
@@ -118,7 +118,7 @@
             },
             "net.if.out.bytes": {
                 "name": "net_out_size",
-                "expression": "value/1024",
+                "expression": "value/128",
                 "tag": "iface"
             },
             "net.if.out.packets": {

@@ -235,36 +235,38 @@ type CacheData struct {
 func Push2ImsSendQueue(items []*cmodel.MetaData) {
 	logrus.Debugf("Push2ImsSendQueue,input len:%d", len(items))
 	itemsGroup := make(map[string][]*cmodel.MetaData)
+	cfg := g.Config()
 	for i := 0; i < len(items); i++ {
-		/*
-			//处理采集周期>=ims接收周期
-			if items[i].Step >= cfg.Ims.Period {
-				//每次都需要上报
-				key := items[i].Endpoint + fmt.Sprint(items[i].Timestamp)
-				itemsGroup[key] = append(itemsGroup[key], items[i]) //加入上报列表
-				continue                                            //处理下一条数据，无需记录缓存
+		if _, ok := cfg.Ims.FalconToIms[items[i].Metric]; !ok {
+			continue //只处理需要上报ims的指标
+		}
+		//处理采集周期>=ims接收周期
+		if items[i].Step >= cfg.Ims.Period {
+			//每次都需要上报
+			key := items[i].Endpoint + fmt.Sprint(items[i].Timestamp)
+			itemsGroup[key] = append(itemsGroup[key], items[i]) //加入上报列表
+			continue                                            //处理下一条数据，无需记录缓存
+		}
+		//处理采集周期<ims接收周期数据
+		if _, ok := ImsSendCache[items[i].Endpoint+items[i].Metric]; !ok { //未发送过的ip+指标处理
+			ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
+				Time:          0,
+				LastTimestamp: items[i].Timestamp,
 			}
-			//处理采集周期<ims接收周期数据
-			if _, ok := ImsSendCache[items[i].Endpoint+items[i].Metric]; !ok { //未发送过的ip+指标处理
+		} else { //已发送过的ip+指标
+			if cfg.Ims.Period > ImsSendCache[items[i].Endpoint+items[i].Metric].Time+items[i].Step { //若没超过ims接收周期
 				ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
-					Time:          items[i].Step,
+					Time:          ImsSendCache[items[i].Endpoint+items[i].Metric].Time + items[i].Step,
 					LastTimestamp: items[i].Timestamp,
 				}
-			} else { //已发送过的ip+指标
-				if cfg.Ims.Period > ImsSendCache[items[i].Endpoint+items[i].Metric].Time+items[i].Step { //若没超过ims接收周期
-					ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
-						Time:          ImsSendCache[items[i].Endpoint+items[i].Metric].Time + items[i].Step,
-						LastTimestamp: items[i].Timestamp,
-					}
-					continue //跳过，本次无需上报
-				} else { //若超过ims接收周期
-					ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
-						Time:          ImsSendCache[items[i].Endpoint+items[i].Metric].Time + items[i].Step - cfg.Ims.Period,
-						LastTimestamp: items[i].Timestamp,
-					}
+				continue //跳过，本次无需上报
+			} else { //若超过ims接收周期
+				ImsSendCache[items[i].Endpoint+items[i].Metric] = CacheData{ //更新缓存
+					Time:          ImsSendCache[items[i].Endpoint+items[i].Metric].Time + items[i].Step - cfg.Ims.Period,
+					LastTimestamp: items[i].Timestamp,
 				}
 			}
-		*/
+		}
 		key := items[i].Endpoint + fmt.Sprint(items[i].Timestamp)
 		itemsGroup[key] = append(itemsGroup[key], items[i]) //加入上报列表
 	}

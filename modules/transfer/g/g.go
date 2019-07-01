@@ -33,9 +33,11 @@ import (
 // 0.0.16: support config of min step
 // 0.0.17: remove migrating, which is implemented in graph
 // 0.0.18_wb: support ims
+// 0.0.19_wb: support ims Period
+// 0.0.20_wb: bug fix for ims period
 
 const (
-	VERSION      = "0.0.18_wb"
+	VERSION      = "0.0.20_wb"
 	GAUGE        = "GAUGE"
 	COUNTER      = "COUNTER"
 	DERIVE       = "DERIVE"
