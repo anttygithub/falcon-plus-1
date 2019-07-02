@@ -35,9 +35,10 @@ import (
 // 0.0.18_wb: support ims
 // 0.0.19_wb: support ims Period
 // 0.0.20_wb: bug fix for ims period
+// 0.0.21_wb: bug fix for ims period don't use cache
 
 const (
-	VERSION      = "0.0.20_wb"
+	VERSION      = "0.0.21_wb"
 	GAUGE        = "GAUGE"
 	COUNTER      = "COUNTER"
 	DERIVE       = "DERIVE"
