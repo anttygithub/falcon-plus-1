@@ -13,8 +13,10 @@ import (
 // 5.1.2: ignore mount point when blocks=0
 // 5.1.2_wb: 上报endpoint默认为ip
 // 5.1.3_wb: 增加两个字表disk_failure 和 disk_util_max
+// 5.1.4_wb: 优化disk_util_max
+// 5.1.5_wb: 增加两个字表disk_failure 和 disk_util_max
 const (
-	VERSION          = "5.1.3_wb"
+	VERSION          = "5.1.5_wb"
 	COLLECT_INTERVAL = time.Second
 	URL_CHECK_HEALTH = "url.check.health"
 	NET_PORT_LISTEN  = "net.port.listen"
