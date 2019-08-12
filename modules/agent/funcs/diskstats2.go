@@ -60,14 +60,12 @@ func DiskFailureMetrics() (L []*model.MetricValue) {
 
 	}
 	logrus.Debugf("DiskFailureMetrics,disk.io.write_request:%v", writerequest)
-	dsLock.RLock()
-	defer dsLock.RUnlock()
-	for device := range diskStatsMap {
+	for device := range diskStatsMap2 {
 		if !ShouldHandleDevice(device) {
 			continue
 		}
-		use := IODelta(device, IOMsecTotal)
-		duration := IODelta(device, TS)
+		use := IODelta2(device, IOMsecTotal)
+		duration := IODelta2(device, TS)
 		if _, ok := writerequest[device]; !ok {
 			logrus.Errorln("DiskFailureMetrics get write_requests fail")
 			return
@@ -88,16 +86,16 @@ func DiskFailureMetrics() (L []*model.MetricValue) {
 
 // DiskUtilMax .
 func DiskUtilMax() float64 {
-	dsLock.RLock()
-	defer dsLock.RUnlock()
+	dsLock2.RLock()
+	defer dsLock2.RUnlock()
 	var tmp float64
 	tmp = 0
-	for device := range diskStatsMap {
+	for device := range diskStatsMap2 {
 		if !ShouldHandleDevice(device) {
 			continue
 		}
-		use := IODelta(device, IOMsecTotal)
-		duration := IODelta(device, TS)
+		use := IODelta2(device, IOMsecTotal)
+		duration := IODelta2(device, TS)
 		f := float64(use) * 100.0 / float64(duration)
 		logrus.Debugf("util:%s", fmt.Sprint(f))
 		if tmp < f {

@@ -24,7 +24,7 @@ import (
 
 func InitDataHistory() {
 	for {
-		funcs.UpdateCpuStat()
+		// funcs.UpdateCpuStat()
 		funcs.UpdateDiskStats()
 		time.Sleep(g.COLLECT_INTERVAL)
 	}
@@ -32,6 +32,7 @@ func InitDataHistory() {
 func InitDataHistory2() {
 	TransferInterval := time.Second * time.Duration(int64(g.Config().Transfer.Interval))
 	for {
+		funcs.UpdateCpuStat()
 		funcs.UpdateDiskStats2()
 		time.Sleep(TransferInterval)
 	}

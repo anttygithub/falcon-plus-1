@@ -15,8 +15,11 @@ import (
 // 5.1.3_wb: 增加两个字表disk_failure 和 disk_util_max
 // 5.1.4_wb: 优化disk_util_max
 // 5.1.5_wb: 增加两个字表disk_failure 和 disk_util_max
+// 5.1.6_wb: 修改funcs.UpdateCpuStat()采集为TransferInterval
+// 5.1.7_wb: bugfix dslock2 and pslock in diskstatus2.go
+// 5.1.8_wb: fix lock bug
 const (
-	VERSION          = "5.1.5_wb"
+	VERSION          = "5.1.8_wb"
 	COLLECT_INTERVAL = time.Second
 	URL_CHECK_HEALTH = "url.check.health"
 	NET_PORT_LISTEN  = "net.port.listen"
