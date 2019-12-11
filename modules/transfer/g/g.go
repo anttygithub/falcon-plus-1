@@ -36,9 +36,10 @@ import (
 // 0.0.19_wb: support ims Period
 // 0.0.20_wb: bug fix for ims period
 // 0.0.21_wb: bug fix for ims period don't use cache
+// 0.0.22_wb: 报送ims时支持常量obj
 
 const (
-	VERSION      = "0.0.21_wb"
+	VERSION      = "0.0.22_wb"
 	GAUGE        = "GAUGE"
 	COUNTER      = "COUNTER"
 	DERIVE       = "DERIVE"

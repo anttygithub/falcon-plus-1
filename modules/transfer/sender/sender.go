@@ -288,6 +288,7 @@ func convert2ImsItem(d []*cmodel.MetaData) *cmodel.ImsItem {
 			objectName := "-"
 			v := m.Value
 			if i.Tag != "" {
+				objectName = i.Tag
 				if _, ok := m.Tags[i.Tag]; ok {
 					objectName = m.Tags[i.Tag]
 				}
