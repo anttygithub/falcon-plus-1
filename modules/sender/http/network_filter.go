@@ -42,7 +42,7 @@ func configInfoRoutes() {
 			return
 		}
 		go a.Handler()
-		RenderJson(w, Dto{Msg: "success", Data: ""})
+		RenderJson(w, Dto{Msg: "success", Data: "已提交后台进行异步处理"})
 	})
 
 }

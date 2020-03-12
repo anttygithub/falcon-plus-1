@@ -17,16 +17,16 @@ import (
 
 // SenderAlarm 用于接收告警信息
 type SenderAlarm struct {
-	Metric    string `json:"metric"`   //统计纬度
-	Endpoint  string `json:"endpoint"` //主机
-	Timestamp string `json:"timestamp"`
-	Value     string `json:"value"` //代表匹配关键字的字符串
-	Type      string `json:"type"`  //只能是COUNTER或者GAUGE二选一，前者表示该数据采集项为计时器类型，后者表示其为原值 (注意大小写)   modify by nic
-	Tag       string `json:"tag"`   //一组逗号分割的键值对, 对metric进一步描述和细化, 可以是空字符串. 比如idc=lg，比如service=xbox等，多个tag之间用逗号分割   modify by nic
-	Status    string `json:"status"`
-	Desc      string `json:"desc"`
-	Level     string `json:"level"`
-	Object    string `json:"object"` //设备对象，如端口，接口之类
+	Metric    string   `json:"metric"`   //统计纬度
+	Endpoint  string   `json:"endpoint"` //主机
+	Timestamp string   `json:"timestamp"`
+	Value     []string `json:"value"` //代表匹配关键字的字符串
+	Type      string   `json:"type"`  //只能是COUNTER或者GAUGE二选一，前者表示该数据采集项为计时器类型，后者表示其为原值 (注意大小写)   modify by nic
+	Tag       string   `json:"tag"`   //一组逗号分割的键值对, 对metric进一步描述和细化, 可以是空字符串. 比如idc=lg，比如service=xbox等，多个tag之间用逗号分割   modify by nic
+	Status    string   `json:"status"`
+	Desc      string   `json:"desc"`
+	Level     string   `json:"level"`
+	Object    string   `json:"object"` //设备对象，如端口，接口之类
 }
 
 const (
@@ -40,57 +40,61 @@ const (
 func (s *SenderAlarm) GetObject() {
 	s1 := []string{}
 	s2 := []string{}
+	if len(s.Value) == 0 {
+		return
+	}
+	value := strings.Join(s.Value, ";")
 	// VPN类告警
-	if strings.Contains(s.Value, "IPSec tunnel:") {
-		s1 = strings.Split(s.Value, "IPSec tunnel:")
+	if strings.Contains(value, "IPSec tunnel:") {
+		s1 = strings.Split(value, "IPSec tunnel:")
 		s2 = strings.Split(s1[1], " ")
 		s.Object = s2[0]
 	}
 	// SLA类告警
-	if strings.Contains(s.Value, "IP SLAs(") {
-		s1 = strings.Split(s.Value, "IP SLAs(")
+	if strings.Contains(value, "IP SLAs(") {
+		s1 = strings.Split(value, "IP SLAs(")
 		s2 = strings.Split(s1[1], ")")
 		s.Object = s2[0]
 	}
-	if strings.Contains(s.Value, "IP SLAs(") {
-		s1 = strings.Split(s.Value, "IP SLAs(")
+	if strings.Contains(value, "IP SLAs(") {
+		s1 = strings.Split(value, "IP SLAs(")
 		s2 = strings.Split(s1[1], ")")
 		s.Object = s2[0]
 	}
-	if strings.Contains(s.Value, "ip sla ") {
-		s1 = strings.Split(s.Value, "ip sla ")
+	if strings.Contains(value, "ip sla ") {
+		s1 = strings.Split(value, "ip sla ")
 		s2 = strings.Split(s1[1], " ")
 		s.Object = s2[0]
 	}
 	// 端口down类告警
-	if strings.Contains(s.Value, "Interface ") {
-		s1 = strings.Split(s.Value, "Interface ")
+	if strings.Contains(value, "Interface ") {
+		s1 = strings.Split(value, "Interface ")
 		s2 = strings.Split(s1[1], " ")
 		s.Object = s2[0]
 	}
-	if strings.Contains(s.Value, "interface ") {
-		s1 = strings.Split(s.Value, "interface ")
+	if strings.Contains(value, "interface ") {
+		s1 = strings.Split(value, "interface ")
 		s2 = strings.Split(s1[1], " ")
 		s.Object = s2[0]
 	}
 	// BGP、OSPF类告警
-	if strings.Contains(s.Value, "neighbor ") {
-		s1 = strings.Split(s.Value, "neighbor ")
+	if strings.Contains(value, "neighbor ") {
+		s1 = strings.Split(value, "neighbor ")
 		s2 = strings.Split(s1[1], " ")
 		s.Object = "neighbor " + s2[0]
 	}
-	if strings.Contains(s.Value, "BGP.: ") {
-		s1 = strings.Split(s.Value, "BGP.: ")
+	if strings.Contains(value, "BGP.: ") {
+		s1 = strings.Split(value, "BGP.: ")
 		s2 = strings.Split(s1[1], " ")
 		s.Object = "BGP.: " + s2[0]
 	}
-	if strings.Contains(s.Value, "Nbr ") {
-		s1 = strings.Split(s.Value, "Nbr ")
+	if strings.Contains(value, "Nbr ") {
+		s1 = strings.Split(value, "Nbr ")
 		s2 = strings.Split(s1[1], " ")
 		s.Object = "Nbr " + s2[0]
 	}
-	if strings.Contains(s.Value, "Neighbor ") {
-		s1 = strings.Split(s.Value, "Neighbor ")
+	if strings.Contains(value, "Neighbor ") {
+		s1 = strings.Split(value, "Neighbor ")
 		s2 = strings.Split(s1[1], " ")
 		s3 := strings.Split(s2[0], "(")
 		s.Object = "Neighbor " + s3[0]
@@ -184,7 +188,8 @@ func (s *SenderAlarm) send() (o *ReportAlertRespondStruct, err error) {
 	// subject="网络设备.SNMP告警.fromTern."+desc
 	// content="Endpoint:"+endpoint+" Metric:"+metric+" Note:"+desc+" Value:"+value+" Timestamp:"+timestamp
 	subject := "网络设备.SNMP告警.fromTern." + s.Desc
-	content := "Endpoint:" + s.Endpoint + " Metric:" + s.Metric + " Note:" + s.Desc + " Value:" + s.Value + " Timestamp:" + s.Timestamp
+	value := strings.Join(s.Value, ";")
+	content := "Endpoint:" + s.Endpoint + " Metric:" + s.Metric + " Note:" + s.Desc + " Value:" + value + " Timestamp:" + s.Timestamp
 
 	//  5127,subject,content,2,tos,0,2,result['endpoint']
 	//  sub_system_id,title,info,level,reciver,ecc,alertway,alertip
