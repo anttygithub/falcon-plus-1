@@ -36,7 +36,7 @@ func (item *NetworkDevice) GetNameByManageIP(conn *sql.DB) error {
 	var name string
 	err := conn.QueryRow("select name from network_device where manage_ip = ?", item.ManageIP).Scan(&name)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("GetNameByManageIP", err)
 		return err
 	}
 	item.Name = name
