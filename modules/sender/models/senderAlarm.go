@@ -110,7 +110,7 @@ func (s *SenderAlarm) Handler() {
 		s.send()
 		return
 	}
-
+	s.Problem2Ok()
 	if s.Status == SenderAlarmStatusPROBLEM {
 		go s.workerPROBLEM()
 	} else if s.Status == SenderAlarmStatusOK {
@@ -118,6 +118,19 @@ func (s *SenderAlarm) Handler() {
 	}
 }
 
+//Problem2Ok 检查是否有恢复事件，有则改status:PROBLEM为OK
+func (s *SenderAlarm) Problem2Ok() {
+	value := strings.Join(s.Value, ";")
+	for _, kw := range g.Config().Ignore {
+		if !strings.Contains(value, kw.Problem) && strings.Contains(value, kw.Ok) {
+			log.Printf("value:%s", value)
+			log.Printf("Problem2Ok p:%s,o:%s", kw.Problem, kw.Ok)
+			log.Println("Problem2Ok")
+			s.Status = SenderAlarmStatusOK
+			return
+		}
+	}
+}
 func (s *SenderAlarm) workerPROBLEM() {
 	if g.Config().Timeout == 0 {
 		log.Println("等待时间未设置，请检查配置文件")

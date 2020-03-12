@@ -53,6 +53,11 @@ type GlobalConfig struct {
 	Http    *HttpConfig  `json:"http"`
 	Rpc     *RpcConfig   `json:"rpc"`
 	Redis   *RedisConfig `json:"redis"`
+	Ignore  []Keyword    `json:"ignore"`
+}
+type Keyword struct {
+	Problem string `json:"problem"`
+	Ok      string `json:"ok"`
 }
 
 var (

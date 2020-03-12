@@ -1,0 +1,59 @@
+{
+    "debug": true,
+    "timeout": 15,
+    "sendurl": "http://127.0.0.1:10812/ims_data_access/send_alarm.do",
+    "tos": "dennisfgong@webank.com,lavineli@webank.com",
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:6055"
+    },
+    "rpc": {
+        "enabled": true,
+        "listen": "0.0.0.0:6056"
+    },
+    "db": {
+        "dsn": "root:test123456@tcp(127.0.0.1:3306)/logdog?loc=Local&parseTime=true",
+        "maxIdle": 4
+    },
+    "redis": {
+        "dsn": "127.0.0.1:6379",
+        "maxIdle": 5,
+        "connTimeout": 5000,
+        "readTimeout": 5000,
+        "writeTimeout": 5000
+    },
+    "ignore": [
+        {
+            "problem": "disconnected",
+            "ok": "connected"
+        },
+        {
+            "problem": "Occurred",
+            "ok": "Cleared"
+        },
+        {
+            "problem": "Up->Down",
+            "ok": "Down->Up"
+        },
+        {
+            "problem": "down",
+            "ok": "up"
+        },
+        {
+            "problem": "Down",
+            "ok": "Up"
+        },
+        {
+            "problem": "ESTABLISHED to IDLE",
+            "ok": "OPENCONFIRM to ESTABLISHED"
+        },
+        {
+            "problem": "FULL to DOWN",
+            "ok": "LOADING to FULL"
+        },
+        {
+            "problem": "DOWN",
+            "ok": "FULL"
+        }
+    ]
+}
