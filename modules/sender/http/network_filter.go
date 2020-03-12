@@ -31,20 +31,18 @@ func configInfoRoutes() {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			fmt.Printf("read body err, %v\n", err)
+			RenderJson(w, Dto{Msg: "read body fail", Data: ""})
 			return
 		}
 		log.Println("receive a request:", string(body))
 		var a models.SenderAlarm
 		if err = json.Unmarshal(body, &a); err != nil {
 			fmt.Printf("Unmarshal err, %v\n", err)
+			RenderJson(w, Dto{Msg: "Unmarshal fail", Data: string(body)})
 			return
 		}
 		go a.Handler()
-		res := struct {
-			status string
-			msg    string
-		}{"success", ""}
-		RenderJson(w, res)
+		RenderJson(w, Dto{Msg: "success", Data: ""})
 	})
 
 }

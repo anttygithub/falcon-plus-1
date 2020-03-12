@@ -102,7 +102,8 @@ func (s *SenderAlarm) GetObject() {
 func (s *SenderAlarm) Handler() {
 	s.GetObject()
 	if s.Object == "" {
-		log.Println("找不到对象:", s.Value)
+		log.Println("找不到收敛对象，直接发送告警:", s.Value)
+		s.send()
 		return
 	}
 
@@ -218,7 +219,11 @@ func (s *SenderAlarm) send() (o *ReportAlertRespondStruct, err error) {
 	m["alert_reciver"] = []string{g.Config().Tos}
 	m["ci_type_name"] = []string{"network_device"}
 	m["ci_name"] = []string{nd.Name}
-	m["alert_obj"] = []string{s.Object}
+	if s.Object != "" {
+		m["alert_obj"] = []string{s.Object}
+	} else {
+		m["alert_obj"] = []string{nd.Name}
+	}
 	// m["remark_info"] = []string{}
 	// m["use_umg_policy"] = []string{}
 	sendurl := g.Config().Sendurl
