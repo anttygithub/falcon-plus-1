@@ -182,7 +182,6 @@ func (s *SenderAlarm) send() (o *ReportAlertRespondStruct, err error) {
 	err = nd.GetNameByManageIP(conn)
 	if err != nil {
 		log.Println("[ERROR] GetNameByManageIP fail", err)
-		return nil, err
 	}
 	m := make(url.Values)
 	// subject="网络设备.SNMP告警.fromTern."+desc
