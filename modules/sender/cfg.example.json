@@ -1,0 +1,26 @@
+{
+    "debug": true,
+    "timeout": 60,
+    "sendurl": "http://testhost:testport/uri",
+    "tos": "dennisfgong@webank.com,lavineli@webank.com",
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:6055"
+    },
+    "rpc": {
+        "enabled": true,
+        "listen": "0.0.0.0:6056"
+    },
+    "db": {
+		"dsn": "root:test123456@tcp(127.0.0.1:3306)/logdog?loc=Local&parseTime=true",
+		"maxIdle": 4
+	},
+    "redis": {
+        "dsn": "127.0.0.1:6379",
+        "maxIdle": 5,
+        "connTimeout": 5000,
+        "readTimeout": 5000,
+        "writeTimeout": 5000
+    },
+    "ignore": {}
+}
